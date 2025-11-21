@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot 測試</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    df-messenger {
+      --df-messenger-bot-message: #f0f0f0;
+      --df-messenger-user-message: #d0f0ff;
+      --df-messenger-font-color: #333333;
+      width: 100%;
+      max-width: 400px;
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <h2>AI機器人 2.0 / Emily</h2>
+
+  <df-messenger
+    intent="WELCOME"
+    chat-title="EmilyBot"
+    agent-id="neckpaindoctor-lxns"
+    language-code="zh-Hant">
+  </df-messenger>
+
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+</body>
+</html>
