@@ -2,35 +2,75 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>AI Chatbot </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>開始使用</title>
+
   <style>
-    df-messenger {
-      --df-messenger-bot-message: #f0f0f0;
-      --df-messenger-user-message: #d0f0ff;
-      --df-messenger-font-color: #333333;
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      max-width: 350px;
+      width: 90%;
+    }
+
+    .card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .start-button {
+      background: #007bff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      display: inline-block;
       width: 100%;
-      max-width: 400px;
-      height: 600px;
     }
   </style>
 </head>
+
 <body>
-  <h2>AI機器人 2.0 </h2>
+  <div class="card">
+    <img src="你的頭貼.png">
+    <h1>歡迎來到 AIBot</h1>
+    <p>點擊下方按鈕開始互動。</p>
 
-
-  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
-<df-messenger
-  intent="WELCOME"
-  chat-title="AI2.0"
-  agent-id="8fecf425-0e50-4e7b-9b38-da001f375efb"
-  language-code="en"
-></df-messenger>
-
-  
-  
+    <a href="chat.html" class="start-button">開始</a>
+  </div>
 </body>
+
 </html>
+
+
 
 
 
