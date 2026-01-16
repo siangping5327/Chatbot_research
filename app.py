@@ -9,15 +9,23 @@ def webhook():
     data = request.get_json()
     
     # 你可以在這裡做計算風險或其他邏輯
-    response_text = "Webhook 接收到訊息！"
+    #response_text = "Webhook 接收到訊息！"
     
     # 回傳給 Dialogflow 的格式
-    return jsonify({"fulfillmentText": response_text})
+    #return jsonify({"fulfillmentText": response_text})
+
+# 這是 webhook route
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    print("Webhook 收到資料！", request.get_json())
+    return jsonify({"fulfillmentText": "收到"})
+
 
 # 這段確保平台能正常啟動 Flask
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))  # Railway 會給你 PORT
     app.run(host="0.0.0.0", port=port)
+
 
 
 
