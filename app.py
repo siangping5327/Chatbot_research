@@ -71,7 +71,7 @@ def webhook():
             level = "高"
 
         return jsonify({
-            "fulfillmentText": f"🎯 你的科技頸風險總分為 {total_score} 分（{level} 風險）"
+            "fulfillmentText": f" 您的科技頸風險總分為 {total_score} 分（{level}風險）"
         })
 
     # =========================
@@ -90,6 +90,7 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
 
 
