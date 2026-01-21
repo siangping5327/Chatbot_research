@@ -43,6 +43,9 @@ def webhook():
     if intent in SCORE_MAP and answer:
         state["score"] += SCORE_MAP[intent].get(answer, 0)
 
+    # Debug：確認有沒有成功加分
+    print(f"[DEBUG] intent={intent}, answer={answer}, score={state['score']}")
+
     # =========================
     # Ending：顯示結果
     # =========================
@@ -76,6 +79,7 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
 
 
