@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # =========================
-# 風險分數對照表（測試版：Q1 + Q2）
+# 風險分數對照表（測試版：Q2 + Q3）
 # =========================
 SCORE_MAP = {
     "Q2": {   # 第一題（示例）
@@ -24,9 +24,17 @@ def webhook():
     req = request.get_json()
 
     intent = req["queryResult"]["intent"]["displayName"]
+
+    # =========================
+    # 嘗試從 parameters 讀取 answer；若沒有，就用 queryText
+    # =========================
     params = req["queryResult"].get("parameters", {})
     answer = params.get("answer")
 
+    if not answer:
+        # Dialogflow ES 點選 chips 後，使用 queryText 或 fulfillmentMessages
+        answer = req["queryResult"].get("queryText", "").strip().lower()
+    
     # =========================
     # 讀取 score-session
     # =========================
@@ -41,13 +49,16 @@ def webhook():
     # 累加分數（只要是題目 intent）
     # =========================
     if intent in SCORE_MAP and answer:
-        state["score"] += SCORE_MAP[intent].get(answer, 0)
-
+        # 注意 answer 要對應到 SCORE_MAP 的 key
+        # 先轉成小寫避免大小寫錯誤
+        key = answer.lower()
+        state["score"] += SCORE_MAP[intent].get(key, 0)
+    
     # Debug：確認有沒有成功加分
     print(f"[DEBUG] intent={intent}, answer={answer}, score={state['score']}")
 
     # =========================
-    # Ending：顯示結果
+    # Ending intent：顯示結果
     # =========================
     if intent == "Ending":
         total_score = state["score"]
@@ -79,6 +90,7 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
 
 
