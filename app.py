@@ -32,25 +32,25 @@ def webhook():
     answer = params.get("answer")
 
     if not answer:
-        # Dialogflow ES 點選 chips 後，使用 queryText 或 fulfillmentMessages
+        # Dialogflow ES 點選 chips 後，使用 queryText
         answer = req["queryResult"].get("queryText", "").strip().lower()
     
     # =========================
-    # 讀取 score-session
+    # 讀取 score-session，確保 state["score"] 存在
     # =========================
     output_contexts = req["queryResult"].get("outputContexts", [])
     state = {"score": 0}
 
     for ctx in output_contexts:
         if ctx["name"].endswith("/contexts/score-session"):
-            state = ctx.get("parameters", state)
+            state = ctx.get("parameters", {})
+            if "score" not in state:
+                state["score"] = 0
 
     # =========================
-    # 累加分數（只要是題目 intent）
+    # 累加分數（只對 SCORE_MAP 中的題目）
     # =========================
     if intent in SCORE_MAP and answer:
-        # 注意 answer 要對應到 SCORE_MAP 的 key
-        # 先轉成小寫避免大小寫錯誤
         key = answer.lower()
         state["score"] += SCORE_MAP[intent].get(key, 0)
     
@@ -90,6 +90,7 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
 
 
