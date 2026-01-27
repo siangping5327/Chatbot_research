@@ -7,14 +7,14 @@ app = Flask(__name__)
 # =========================
 # 方法 1：按題目分層管理 TEXT_TO_VALUE
 TEXT_TO_VALUE = {
-    "Q1": {
+    "Q２": {
         "少於 3 小時": "short",
         "3–6 小時": "medium",
         "6 小時以上": "long",
         "略過": "skip",
         "略過/不願透露": "skip",
     },
-    "Q2": {
+    "Q３": {
         "是": "true",
         "否，會低頭": "false",
         "略過": "skip"
@@ -22,20 +22,20 @@ TEXT_TO_VALUE = {
 }
 
 SCORE_MAP = {
-    "Q1": {
+    "Q２": {
         "short": 0,
         "medium": 1,
         "long": 2,
         "skip": 0
     },
-    "Q2": {
+    "Q３": {
         "true": 2,
         "false": 1,
         "skip": 0
     }
 }
 
-SCORABLE_INTENTS = {"Q1", "Q2"}
+SCORABLE_INTENTS = {"Q２", "Q３"}
 
 
 @app.route("/webhook", methods=["POST"])
@@ -107,3 +107,4 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
 
    
+
