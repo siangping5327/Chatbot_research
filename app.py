@@ -5,6 +5,22 @@ app = Flask(__name__)
 # =========================
 # 題目分數表（只做 Q1 + Q2）
 # =========================
+# 方法 1：按題目分層管理 TEXT_TO_VALUE
+TEXT_TO_VALUE = {
+    "Q1": {
+        "少於 3 小時": "short",
+        "3–6 小時": "medium",
+        "6 小時以上": "long",
+        "略過": "skip",
+        "略過/不願透露": "skip",
+    },
+    "Q2": {
+        "是": "true",
+        "否，會低頭": "false",
+        "略過": "skip"
+    }
+}
+
 SCORE_MAP = {
     "Q1": {
         "short": 0,
@@ -19,15 +35,24 @@ SCORE_MAP = {
     }
 }
 
+SCORABLE_INTENTS = {"Q1", "Q2"}
+
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json()
 
     intent = req["queryResult"]["intent"]["displayName"]
-    raw_text = req["queryResult"]["queryText"].strip().lower()
+    raw_text = req["queryResult"]["queryText"].strip()
+
+    # =========================
+    # 將使用者輸入映射成對應的值（按題目分層）
+    # =========================
+    mapped_value = TEXT_TO_VALUE.get(intent, {}).get(raw_text, raw_text.lower())
 
     print(f"[DEBUG] intent={intent}")
     print(f"[DEBUG] raw_text={raw_text}")
+    print(f"[DEBUG] mapped_value={mapped_value}")
 
     # =========================
     # 讀取或初始化 score-session
@@ -41,10 +66,12 @@ def webhook():
     # =========================
     # 累加分數（關鍵段落）
     # =========================
-    if intent in SCORE_MAP:
-        score_added = SCORE_MAP[intent].get(raw_text, 0)
+    if intent in SCORABLE_INTENTS:
+        score_added = SCORE_MAP[intent].get(mapped_value, 0)
         state["score"] += score_added
         print(f"[DEBUG] add={score_added}, total={state['score']}")
+    else:
+        print(f"[DEBUG] intent {intent} not scorable")
 
     # =========================
     # Ending：顯示總分
@@ -75,30 +102,8 @@ def webhook():
         ]
     })
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
