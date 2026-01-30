@@ -1,40 +1,61 @@
-// 引入套件
-const express = require("express");
-const bodyParser = require("body-parser");
+from flask import Flask, request, jsonify
 
-// 建立 Express app
-const app = express();
-app.use(bodyParser.json()); // 解析 JSON
+app = Flask(__name__)
 
-// Webhook route
-app.post("/webhook", (req, res) => {
-  // 完整 request
-  console.log("Request body:", JSON.stringify(req.body, null, 2));
+# =========================
+# 題目分數表（只做 Q1 + Q2 作為範例，可延伸）
+# =========================
+SCORE_MAP = {
+    "Q1": {
+        "short": 0,
+        "medium": 1,
+        "long": 2,
+        "skip": 0
+    },
+    "Q2": {
+        "true": 2,
+        "false": 1,
+        "skip": 0
+    }
+}
 
-  // 讀取 Q1 的參數
-  const q1Answer = req.body.queryResult?.parameters?.q1_answer || "沒有抓到";
-  console.log("Q1 answer:", q1Answer);
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    req = request.get_json()
+    intent = req["queryResult"]["intent"]["displayName"]
+    
+    print(f"[DEBUG] intent={intent}")
+    print(f"[DEBUG] full request body: {req}")
 
-  // 回傳訊息給 Dialogflow
-  res.json({
-    fulfillmentText: `你點的按鈕是: ${q1Answer}`
-  });
-});
+    # =========================
+    # 直接從 parameters 讀取各題答案
+    # =========================
+    params = req["queryResult"].get("parameters", {})
+    total_score = 0
 
-// 啟動 server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Webhook server is running on port ${PORT}`);
-});
+    for q, mapping in SCORE_MAP.items():
+        ans = params.get(q.lower(), "skip")  # 注意參數名稱要和 Dialogflow 裡的名稱對應
+        total_score += mapping.get(ans, 0)
+        print(f"[DEBUG] {q} answer={ans}, current total={total_score}")
 
+    # =========================
+    # Ending Intent 回傳總分
+    # =========================
+    if intent == "Ending":
+        return jsonify({
+            "fulfillmentText": f" 您的科技頸風險總分為 {total_score} 分"
+        })
 
+    # =========================
+    # 非 Ending Intent 回傳空訊息即可
+    # =========================
+    return jsonify({
+        "fulfillmentText": f"已記錄您的回答：{params}"
+    })
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
 
-   
-
-
-
-   
 
 
 
