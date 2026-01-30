@@ -99,6 +99,14 @@ def find_answered_question(req):
 def webhook():
     # 取得 Dialogflow 傳來的 request JSON
     req = request.get_json()
+    
+    # 【加在這裡】先看 Dialogflow 實際送了哪些 contexts
+    print("=== CONTEXT DUMP ===")
+    for ctx in req["queryResult"].get("outputContexts", []):
+        print(ctx["name"])
+    print("====================")
+
+    raw_text = req["queryResult"]["queryText"].strip()
 
     # 使用者實際輸入或點選的文字
     raw_text = req["queryResult"]["queryText"].strip()
@@ -151,7 +159,8 @@ def webhook():
     else:
         # 通常發生在非題目 intent（例如歡迎訊息）
         print("[DEBUG] no answered question context found")
-
+        print("=== CONTEXT DUMP ===")
+    
     # ==================================================
     """Ending intent：顯示總分並清除 session
     
@@ -194,5 +203,10 @@ if __name__ == "__main__":
 
 
    
+
+
+
+   
+
 
 
