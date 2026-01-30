@@ -101,12 +101,9 @@ def webhook():
     req = request.get_json()
     
     # 【加在這裡】先看 Dialogflow 實際送了哪些 contexts
-    print("=== CONTEXT DUMP ===")
-    for ctx in req["queryResult"].get("outputContexts", []):
-        print(ctx["name"])
-    print("====================")
+    intent = req["queryResult"]["intent"]["displayName"]
+    print(f"[DEBUG] intent_hit={intent}")
 
-    raw_text = req["queryResult"]["queryText"].strip()
 
     # 使用者實際輸入或點選的文字
     raw_text = req["queryResult"]["queryText"].strip()
@@ -207,6 +204,7 @@ if __name__ == "__main__":
 
 
    
+
 
 
 
