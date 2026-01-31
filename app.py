@@ -2,7 +2,11 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-
+# =========================
+# 題目分數表（示範 Q1 + Q2，可擴充更多題）
+# key = Dialogflow parameter 名稱
+# value = 每個選項對應分數
+# =========================
 SCORE_MAP = {
     "q1_answer": {  
         "short": 0,
@@ -25,20 +29,23 @@ def webhook():
 
     print(f"[DEBUG] intent={intent}")
     print(f"[DEBUG] full request body: {req}")
-　　
- 
-  
-    question_intents = ["Q1_intent", "Q2_intent"] 
+
+    # =========================
+    # 只在問題意圖或 Ending Intent 才計算分數
+    # =========================
+    question_intents = ["Q1_intent", "Q2_intent"]  # 需要 webhook 的問題 intent
     if intent not in question_intents and intent.lower() != "ending":
         print("[DEBUG] Non-question intent detected, skipping score calculation")
-        return jsonify({"fulfillmentText": ""}) 
-    
- 
+        return jsonify({"fulfillmentText": ""})  # Welcome Intent 或其他意圖不顯示 skip
+
+    # =========================
+    # 計算總分
+    # =========================
     total_score = 0
     debug_answers = {}
 
     for question, options in SCORE_MAP.items():
-        ans = params.get(question, "skip") 
+        ans = params.get(question, "skip")  # 如果使用者沒回答，預設 skip
         score = options.get(ans, 0)
         total_score += score
         debug_answers[question] = {
@@ -48,20 +55,26 @@ def webhook():
         }
         print(f"[DEBUG] {question}: answer={ans}, score={score}, total_score={total_score}")
 
- 
-    if intent.lower() == "ending": 
+    # =========================
+    # Ending Intent 回傳總分
+    # =========================
+    if intent.lower() == "ending":  
         print(f"[DEBUG] Final total score={total_score}")
         return jsonify({
             "fulfillmentText": f"您的科技頸風險總分為 {total_score} 分"
         })
 
-  
+    # =========================
+    # 非 Ending Intent 回傳 debug 訊息（可選，開發階段用）
+    # =========================
     return jsonify({
         "fulfillmentText": f"已記錄您的回答：{debug_answers}"
     })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
+
+
 
 
 
