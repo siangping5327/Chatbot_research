@@ -3,79 +3,68 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # =========================
-# SCORE_MAP：定義要計分的題目
-# 只做 Q1 + Q2，其他題目不在此 map 就不計分
-# key = Dialogflow parameter 名稱
-# value = 各選項對應分數
+# 1️⃣ 設定「選項文字 → 分數」
+# 只放你「真的要計分的選項」
 # =========================
 SCORE_MAP = {
-    "q1_answer": {
-        "short": 0,
-        "medium": 1,
-        "long": 2,
-        "skip": 0
-    },
-    "q2_answer": {
-        "true": 2,
-        "false": 1,
-        "skip": 0
-    }
+    # Q1
+    "少於 3 小時": 0,
+    "3–6 小時": 1,
+    "6 小時以上": 2,
+
+    # Q2
+    "是": 1,
+    "否，會低頭": 2
 }
 
+
+# =========================
+# 2️⃣ Webhook 主程式
+# =========================
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    req = request.get_json()
-    intent = req["queryResult"]["intent"]["displayName"]
-    params = req["queryResult"].get("parameters", {})
+    req = request.get_json(force=True)
 
-    print(f"[DEBUG] intent={intent}")
-    print(f"[DEBUG] full request body: {req}")
+    # ---- 使用者剛剛選的文字 ----
+    user_text = req["queryResult"].get("queryText", "")
 
-    # =========================
-    # 非問題題目且非 Ending Intent → 不做計分
-    # 這樣第三題到第十題雖然沒計分，也不會中斷對話
-    # =========================
-    if not params and intent.lower() != "ending":
-        print("[DEBUG] Non-question intent or no parameters, skipping score calculation")
-        return jsonify({"fulfillmentText": ""})
+    # ---- Session parameters（用來存總分）----
+    session_params = req["queryResult"].get("parameters", {})
 
-    # =========================
-    # 計算總分（只計 SCORE_MAP 內的題目）
-    # =========================
-    total_score = 0
-    debug_answers = {}
+    # ---- 目前累積分數 ----
+    current_score = session_params.get("total_score", 0)
 
-    for question, options in SCORE_MAP.items():
-        ans = params.get(question, "skip")  # 如果參數不存在，就 skip
-        score = options.get(ans, 0)
-        total_score += score
-        debug_answers[question] = {
-            "answer": ans,
-            "score": score,
-            "running_total": total_score
-        }
-        print(f"[DEBUG] {question}: answer={ans}, score={score}, total_score={total_score}")
+    # ---- 本題加多少分 ----
+    add_score = SCORE_MAP.get(user_text, 0)
 
-    # =========================
-    # Ending Intent 回傳總分
-    # =========================
-    if intent.lower() == "ending":
-        print(f"[DEBUG] Final total score={total_score}")
-        return jsonify({
-            "fulfillmentText": f"您的科技頸風險總分為 {total_score} 分"
-        })
+    # ---- 更新總分 ----
+    new_score = current_score + add_score
+    session_params["total_score"] = new_score
 
-    # =========================
-    # 非 Ending Intent 回傳確認訊息（開發用 debug）
-    # 對話不中斷
-    # =========================
+    # ---- Debug 用（Render log 會看到）----
+    print("User text:", user_text)
+    print("Add score:", add_score)
+    print("Total score:", new_score)
+
+    # ---- 回傳給 Dialogflow ----
     return jsonify({
-        "fulfillmentText": f"已記錄您的回答：{debug_answers}"
+        "fulfillmentText": "",  # 文字交給 Dialogflow 本身處理
+        "outputContexts": [
+            {
+                "name": req["queryResult"]["outputContexts"][0]["name"],
+                "lifespanCount": 50,
+                "parameters": session_params
+            }
+        ]
     })
 
 
+# =========================
+# 3️⃣ Render 需要的啟動方式
+# =========================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080)
+
 
 
 
