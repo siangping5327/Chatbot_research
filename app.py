@@ -25,14 +25,14 @@ def webhook():
 
     print(f"[DEBUG] intent={intent}")
     print(f"[DEBUG] full request body: {req}")
-　　# =========================
+　　
  
   
     question_intents = ["Q1_intent", "Q2_intent"] 
     if intent not in question_intents and intent.lower() != "ending":
         print("[DEBUG] Non-question intent detected, skipping score calculation")
         return jsonify({"fulfillmentText": ""}) 
-    # =========================
+    
  
     total_score = 0
     debug_answers = {}
@@ -48,16 +48,13 @@ def webhook():
         }
         print(f"[DEBUG] {question}: answer={ans}, score={score}, total_score={total_score}")
 
-    # =========================
-    # 如果是 Ending Intent，回傳總分
-    # =========================
-    if intent.lower() == "ending":  # 不分大小寫
+ 
+    if intent.lower() == "ending": 
         print(f"[DEBUG] Final total score={total_score}")
         return jsonify({
             "fulfillmentText": f"您的科技頸風險總分為 {total_score} 分"
         })
 
-    # =========================
   
     return jsonify({
         "fulfillmentText": f"已記錄您的回答：{debug_answers}"
@@ -65,5 +62,6 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
+
 
 
