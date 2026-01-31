@@ -2,68 +2,70 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# =========================
-# 1️⃣ 設定「選項文字 → 分數」
-# 只放你「真的要計分的選項」
-# =========================
+# 每個選項對應的分數
 SCORE_MAP = {
-    # Q1
     "少於 3 小時": 0,
     "3–6 小時": 1,
     "6 小時以上": 2,
-
-    # Q2
-    "是": 1,
+    "是": 2,
     "否，會低頭": 2
 }
 
+def get_result_text(total_score):
+    if total_score >= 4:
+        return f"🔴 風險偏高（總分：{total_score}）\n建議您留意使用姿勢，適度休息。"
+    elif total_score >= 2:
+        return f"🟡 中度風險（總分：{total_score}）\n目前狀況尚可，但仍需注意姿勢。"
+    else:
+        return f"🟢 低風險（總分：{total_score}）\n目前習慣良好，請繼續保持。"
 
-# =========================
-# 2️⃣ Webhook 主程式
-# =========================
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json(force=True)
 
-    # ---- 使用者剛剛選的文字 ----
+    intent_name = req["queryResult"]["intent"]["displayName"]
     user_text = req["queryResult"].get("queryText", "")
+    params = req["queryResult"].get("parameters", {})
 
-    # ---- Session parameters（用來存總分）----
-    session_params = req["queryResult"].get("parameters", {})
+    # 目前累積分數（如果沒有就當 0）
+    current_score = params.get("total_score", 0)
 
-    # ---- 目前累積分數 ----
-    current_score = session_params.get("total_score", 0)
-
-    # ---- 本題加多少分 ----
-    add_score = SCORE_MAP.get(user_text, 0)
-
-    # ---- 更新總分 ----
-    new_score = current_score + add_score
-    session_params["total_score"] = new_score
-
-    # ---- Debug 用（Render log 會看到）----
+    print("Intent:", intent_name)
     print("User text:", user_text)
-    print("Add score:", add_score)
-    print("Total score:", new_score)
+    print("Current score:", current_score)
 
-    # ---- 回傳給 Dialogflow ----
+    # =========================
+    # Ending：顯示總分與結論
+    # =========================
+    if intent_name == "Ending":
+        result_text = get_result_text(current_score)
+
+        return jsonify({
+            "fulfillmentText": result_text
+        })
+
+    # =========================
+    # 一般題目：加分但不顯示訊息
+    # =========================
+    add_score = SCORE_MAP.get(user_text, 0)
+    new_score = current_score + add_score
+    params["total_score"] = new_score
+
+    print("Add score:", add_score)
+    print("New total:", new_score)
+
     return jsonify({
-        "fulfillmentText": "",  # 文字交給 Dialogflow 本身處理
-        "outputContexts": [
-            {
-                "name": req["queryResult"]["outputContexts"][0]["name"],
-                "lifespanCount": 50,
-                "parameters": session_params
-            }
-        ]
+        "followupEventInput": {
+            "name": "KEEP_CONTEXT",
+            "languageCode": "zh-tw",
+            "parameters": params
+        }
     })
 
-
-# =========================
-# 3️⃣ Render 需要的啟動方式
-# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
+
 
 
 
