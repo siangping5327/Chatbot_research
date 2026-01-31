@@ -29,7 +29,13 @@ def webhook():
 
     print(f"[DEBUG] intent={intent}")
     print(f"[DEBUG] full request body: {req}")
-
+　　# =========================
+    #  新增：只在問題意圖或 Ending Intent 才計算分數
+    # =========================
+    question_intents = ["Q1_intent", "Q2_intent"]  # 需要 webhook 的問題 intent
+    if intent not in question_intents and intent.lower() != "ending":
+        print("[DEBUG] Non-question intent detected, skipping score calculation")
+        return jsonify({"fulfillmentText": ""})  # Welcome Intent 或其他意圖就不計算
     # =========================
     # 計算總分
     # =========================
@@ -65,3 +71,4 @@ def webhook():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
+
