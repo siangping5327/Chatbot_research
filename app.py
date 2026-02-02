@@ -56,7 +56,7 @@ def webhook():
     # 其他題目：只加分，不顯示文字
     # =========================
     add_score = SCORE_MAP.get(user_text, 0)
-    new_total_score = current_score + add_score
+    new_total_score = float(current_score or 0) + int(add_score or 0)
 
     print("Add score:", add_score)
     print("New total score:", new_total_score)
@@ -78,3 +78,4 @@ def webhook():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
