@@ -49,7 +49,7 @@ def webhook():
     # =========================
     if intent_name == "Ending":
         return jsonify({
-            "fulfillmentText": f"風險分數為 {current_score} 分。【使用完成】請關閉聊天視窗，點選填寫問卷。"
+            "fulfillmentText": f"【使用完成】請關閉聊天視窗，點選填寫問卷。風險分數為 {current_score} 分"
         })
 
     # =========================
@@ -73,12 +73,8 @@ def webhook():
         ]
     })
 
-
 # =========================
 # 3️⃣ Render 啟動
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
-
-
-
