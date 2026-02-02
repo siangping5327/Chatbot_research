@@ -16,10 +16,9 @@ SCORE_MAP = {
     "否，會低頭": 2,
 }
 
-# 👉 這些 intent「只能顯示結果，不能改分數」
+# 👉 只有「最終顯示」的 intent
 ENDING_INTENTS = [
-    "Ending",
-    "Ending１"
+    "Ending"
 ]
 
 # =========================
@@ -45,7 +44,7 @@ def webhook():
             break
 
     # =========================
-    # 🧮 讀取目前分數（超重要防呆）
+    # 🧮 讀取目前累積分數（超級防呆）
     # =========================
     raw_score = 0
     if score_context:
@@ -61,15 +60,15 @@ def webhook():
     print("Current score:", current_score)
 
     # =========================
-    # 🛑 Ending 類 intent：只顯示，不動 context
+    # 🛑 Ending：只顯示，不動分數、不回 context
     # =========================
-    if intent_name == "Ending":
+    if intent_name in ENDING_INTENTS:
         return jsonify({
             "fulfillmentText": f"風險分數為 {current_score} 分"
         })
 
     # =========================
-    # ➕ 一般題目：加分
+    # ➕ 其他 intent（包含 Ending1）：加分
     # =========================
     add_score = SCORE_MAP.get(user_text, 0)
 
@@ -99,13 +98,8 @@ def webhook():
         ]
     })
 
-
 # =========================
 # 3️⃣ Render / Local 啟動
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
-
-
-
-
