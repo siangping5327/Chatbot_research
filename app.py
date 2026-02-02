@@ -42,6 +42,13 @@ def webhook():
         if c["name"].endswith("/contexts/score_context"):
             score_context = c
             break
+    print("Found score_context:", score_context)
+    
+    # Input Contexts
+    input_contexts = req["queryResult"].get("outputContexts", [])
+    print("=== All outputContexts ===")
+    for c in input_contexts:
+        print(c["name"], c.get("parameters", {}))
 
     # =========================
     # 🧮 讀取目前累積分數（超級防呆）
@@ -98,8 +105,10 @@ def webhook():
         ]
     })
 
+
 # =========================
 # 3️⃣ Render / Local 啟動
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
