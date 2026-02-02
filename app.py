@@ -63,7 +63,7 @@ def webhook():
     # =========================
     # 🛑 Ending 類 intent：只顯示，不動 context
     # =========================
-    if intent_name in ENDING_INTENTS:
+    if intent_name == "Ending":
         return jsonify({
             "fulfillmentText": f"風險分數為 {current_score} 分"
         })
@@ -105,6 +105,7 @@ def webhook():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
 
 
