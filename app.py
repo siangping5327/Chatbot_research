@@ -43,7 +43,7 @@ def webhook():
             score_context = c
             break
     print("Found score_context:", score_context)
-    
+
     # Input Contexts
     input_contexts = req["queryResult"].get("outputContexts", [])
     print("=== All outputContexts ===")
@@ -69,10 +69,17 @@ def webhook():
     # =========================
     # 🛑 Ending：只顯示，不動分數、不回 context
     # =========================
+
     if intent_name in ENDING_INTENTS:
-        return jsonify({
-            "fulfillmentText": f"風險分數為 {current_score} 分"
+      return jsonify({
+        "fulfillmentText": (
+            f"您的科技頸風險分數為 {current_score} 分。\n"
+            "[註]：上述評估結果僅供參考，若需專業建議，請諮詢專業人士。\n"
+            "【使用完成】請關閉聊天視窗，點選「問卷填寫」按鈕。"
+        )
         })
+
+
 
     # =========================
     # ➕ 其他 intent（包含 Ending1）：加分
@@ -111,4 +118,5 @@ def webhook():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
 
